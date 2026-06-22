@@ -1,3 +1,4 @@
+PHP
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -14,7 +15,10 @@ return new class extends Migration {
             $table->string('candidate_email');
             $table->date('interview_date');
             $table->time('interview_time');
-            $table->enum('status', ['Pendente', 'Realizada', 'Faltou'])->default('Pendente');
+            
+            // Aqui está a mágica: agora o banco aceita os novos status!
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            
             $table->text('feedback')->nullable();
             $table->timestamps();
         });
