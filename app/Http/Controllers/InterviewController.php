@@ -41,12 +41,26 @@ class InterviewController extends Controller
         $interview->linkedin = $request->linkedin;       
         $interview->interview_date = $request->interview_date;
         $interview->interview_time = $request->interview_time;
-        $interview->status = 'pending'; // Força para 'Pendente' em português, combinando com seu painel
+        $interview->status = 'pending'; // Força para 'pending', combinando com seu painel
         $interview->save();
 
         return redirect()->back()->with('success', 'Candidatura enviada com sucesso! Em breve entraremos em contato.');
     }
    
+    // ATUALIZA O STATUS DO CANDIDATO (Aprovado, Reprovado, Pendente)
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:pending,approved,rejected',
+        ]);
+
+        $interview = Interview::findOrFail($id);
+        $interview->status = $request->status;
+        $interview->save();
+
+        return redirect()->back()->with('success', 'Status do candidato atualizado com sucesso!');
+    }
+
     // Exclui um candidato do banco de dados
     public function destroy($id)
     {

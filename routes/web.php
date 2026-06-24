@@ -1,7 +1,5 @@
 <?php
 
-
-
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VacancyController;
@@ -12,9 +10,7 @@ use App\Http\Controllers\InterviewController;
 | ROTAS PÚBLICAS (Não precisa de login)
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::redirect('/', '/login');
 
 // Rotas do Candidato (Públicas)
 Route::get('/agendar/{id}', [InterviewController::class, 'create'])->name('interviews.create');
@@ -27,7 +23,8 @@ Route::post('/agendar/{id}', [InterviewController::class, 'store'])->name('inter
 |--------------------------------------------------------------------------
 */
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    // Redireciona direto para a tela de listagem de vagas
+    return redirect()->route('vacancies.index');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
@@ -35,7 +32,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::delete('/interviews/{id}', [App\Http\Controllers\InterviewController::class, 'destroy'])->name('interviews.destroy');
 });
 
 // Grupo de Rotas de Gestão (Protegidas)
@@ -47,9 +43,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/vagas/{id}/editar', [VacancyController::class, 'edit'])->name('vacancies.edit');
     Route::put('/vagas/{id}', [VacancyController::class, 'update'])->name('vacancies.update');
     Route::delete('/vagas/{id}', [VacancyController::class, 'destroy'])->name('vacancies.destroy');
+    // Rotas de Vagas
+    Route::get('/vagas', [VacancyController::class, 'index'])->name('vacancies.index');
+    Route::post('/vagas', [VacancyController::class, 'store'])->name('vacancies.store');
+    Route::get('/vagas/{id}/editar', [VacancyController::class, 'edit'])->name('vacancies.edit');
+    Route::put('/vagas/{id}', [VacancyController::class, 'update'])->name('vacancies.update');
+    Route::delete('/vagas/{id}', [VacancyController::class, 'destroy'])->name('vacancies.destroy');
+    
+    // NOVA ROTA: Ligar/Desligar Vaga
+    Route::patch('/vagas/{id}/status', [VacancyController::class, 'toggleStatus'])->name('vacancies.toggleStatus');
 
-    // NOVA ROTA: Atualizar status do candidato
-    Route::put('/entrevistas/{id}/status', [VacancyController::class, 'updateInterviewStatus'])->name('interviews.updateStatus');
+    // Rotas de Candidatos (Entrevistas)
+    Route::delete('/interviews/{id}', [InterviewController::class, 'destroy'])->name('interviews.destroy');
+    
+    // ROTA CORRIGIDA: Apontando para o InterviewController e o método updateStatus
+    Route::put('/entrevistas/{id}/status', [InterviewController::class, 'updateStatus'])->name('interviews.updateStatus');
 });
 
 require __DIR__.'/auth.php';
